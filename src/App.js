@@ -37,6 +37,13 @@ function App() {
 
       });//Validado
 
+      spotify.getUserPlaylists().then((playlists) => {
+        dispatch({
+          type: "SET_PLAYLISTS",
+          playlists: playlists,
+        });//Validado
+      });//Validado
+
     }//Validado
 
   },[]);
