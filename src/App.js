@@ -1,15 +1,18 @@
-import React, { useEffect, useState } from 'react';//Validado
+import React, { useEffect } from 'react';//Validado
+import SpotifyWebApi from 'spotify-web-api-js';//Validado
+import { useDataLayerValue } from './DataLayer';//Validado
+import Player from './Player';//Validado
+import { getTokenFromUrl } from './spotify';//Validado
 import './App.css';//Validado
 import Login from './Login';//Validado
-import { getTokenFromUrl } from './spotify';//Validado
-import SpotifyWebApi from 'spotify-web-api-js';//Validado
-import Player from './Player';//Validado
-import { useDataLayerValue } from './DataLayer';//Validado
+
+
+
 
 const spotify = new SpotifyWebApi();//Validado
 
 function App() {
-  const [ {user , token} , dispatch ] = useDataLayerValue();
+  const [ { token } , dispatch ] = useDataLayerValue();//user
 
   //run code based on a given condition
   useEffect(() => {
@@ -19,14 +22,23 @@ function App() {
     const _token = hash.access_token;//Validado
 
     if(_token){
-
+      spotify.setAccessToken(_token);//Nuevo
       dispatch({
         type: "SET_TOKEN",
         token: _token,
       });//Validado
 
-      //Asignamos a la instancia el token
-      spotify.setAccessToken(_token);//Validado
+      spotify.getPlaylist('37i9dQZF1DWVskFRGurTfg').then((response) => 
+        dispatch({
+          type: "SET_DISCOVER_WEEKLY",
+          discover_weekly: response,
+        })
+      );//Validado
+
+      dispatch({
+        type: "SET_SPOTIFY",
+        spotify: spotify,
+      });//Nuevo
 
       spotify.getMe().then((user) => {
 
@@ -44,19 +56,16 @@ function App() {
         });//Validado
       });//Validado
 
+      
+
     }//Validado
 
-  },[]);
+  },[token, dispatch]);
 
   return (
-    <div className="App">
-      {
-        token ? (
-          <Player spotify={spotify}/>
-        ) : (
-          <Login/>
-        )
-      }
+    <div className="app">
+      {!token && <Login />}
+      {token && <Player spotify={spotify} />}
     </div>
   );
 }
